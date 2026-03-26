@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -34,19 +35,24 @@ class StatsScreen extends ConsumerWidget {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: Text('Statistiques',
-                      style: Theme.of(context).textTheme.headlineLarge),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                       Text('Statistiques', style: Theme.of(context).textTheme.headlineLarge),
+                       const SizedBox(height: 4),
+                       Text('Analyse des performances IA et revenus', style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  ).animate().fadeIn().slideX(begin: -0.1),
                 ),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
                   child: PeriodFilterTabs(
                     selected: period,
-                    onChanged: (p) =>
-                        ref.read(_statsPeriodProvider.notifier).state = p,
+                    onChanged: (p) => ref.read(_statsPeriodProvider.notifier).state = p,
                   ),
-                ),
+                ).animate(delay: 200.ms).fadeIn(),
               ),
               statsAsync.when(
                 loading: () => const SliverFillRemaining(
@@ -59,11 +65,9 @@ class StatsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        // Dynamic Actionable Insights
-                        _DynamicInsights(stats: stats),
+                        _DynamicInsights(stats: stats).animate(delay: 300.ms).fadeIn().slideY(begin: 0.2),
                         const SizedBox(height: 24),
 
-                        // KPI tiles row
                         Row(
                           children: [
                             _KpiTile(
@@ -71,14 +75,14 @@ class StatsScreen extends ConsumerWidget {
                               value: stats.formattedSavedFull,
                               icon: Icons.savings_outlined,
                               color: AppColors.success,
-                            ),
+                            ).animate(delay: 400.ms).fadeIn().scale(),
                             const SizedBox(width: 12),
                             _KpiTile(
                               label: 'Interceptés',
                               value: '${stats.totalLeadsIntercepted}',
                               icon: Icons.phone_in_talk_outlined,
                               color: AppColors.primary,
-                            ),
+                            ).animate(delay: 500.ms).fadeIn().scale(),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -88,33 +92,30 @@ class StatsScreen extends ConsumerWidget {
                               label: 'Perdus',
                               value: '${stats.totalLeadsLost}',
                               icon: Icons.call_missed_outlined,
-                              color: AppColors.danger,
-                            ),
+                              color: AppColors.error,
+                            ).animate(delay: 600.ms).fadeIn().scale(),
                             const SizedBox(width: 12),
                             _KpiTile(
                               label: 'Conversion',
-                              value:
-                                  '${stats.conversionRate.toStringAsFixed(0)}%',
+                              value: '${stats.conversionRate.toStringAsFixed(0)}%',
                               icon: Icons.trending_up,
                               color: AppColors.warning,
-                            ),
+                            ).animate(delay: 700.ms).fadeIn().scale(),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
 
-                        // Bar chart
                         _ChartCard(
                           title: 'Urgences captées vs perdues',
-                          child: _UrgencesBarChart(daily: stats.daily),
+                          child: _UrgencesBarChart(daily: stats.daily).animate(delay: 800.ms).fadeIn(),
                         ),
                         const SizedBox(height: 16),
 
-                        // Savings line chart
                         _ChartCard(
                           title: 'Revenus sauvés (\$ CAD)',
-                          child: _SavingsLineChart(daily: stats.daily),
+                          child: _SavingsLineChart(daily: stats.daily).animate(delay: 900.ms).fadeIn(),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -133,57 +134,32 @@ class _KpiTile extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
-
-  const _KpiTile({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+  const _KpiTile({required this.label, required this.value, required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.2)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.border),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 16),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(value,
-                        style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                            color: color)),
-                  ),
-                  Text(label,
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.textSecondary)),
-                ],
-              ),
+            const SizedBox(height: 12),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary, letterSpacing: -1)),
             ),
+            Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -194,23 +170,22 @@ class _KpiTile extends StatelessWidget {
 class _ChartCard extends StatelessWidget {
   final String title;
   final Widget child;
-
   const _ChartCard({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          const SizedBox(height: 24),
           AspectRatio(aspectRatio: 1.5, child: child),
         ],
       ),
@@ -229,56 +204,37 @@ class _DynamicInsights extends StatelessWidget {
     IconData icon;
 
     if (stats.conversionRate >= 70) {
-      insight = 'Excellent travail ! Votre taux de conversion est de ${stats.conversionRate.toStringAsFixed(0)}%, ce qui est au-dessus de la moyenne régionale.';
-      color = AppColors.success;
-      icon = Icons.emoji_events_outlined;
+      insight = 'Performance remarquable. Vous convertissez ${stats.conversionRate.toStringAsFixed(0)}% des leads.';
+      color = AppColors.secondary;
+      icon = Icons.auto_awesome;
     } else if (stats.conversionRate >= 40) {
-      insight = 'Vous avez intercepté ${stats.totalLeadsIntercepted} urgences. Essayez de rappeler plus vite pour améliorer votre conversion de ${stats.conversionRate.toStringAsFixed(0)}%.';
-      color = AppColors.warning;
-      icon = Icons.bolt_outlined;
-    } else if (stats.totalLeadsIntercepted == 0) {
-      insight = 'Aucune urgence interceptée pour cette période. L\'IA est active et surveille le marché.';
-      color = AppColors.textSecondary;
-      icon = Icons.hourglass_empty;
+      insight = 'Interception de ${stats.totalLeadsIntercepted} leads. Améliorez le rappel pour booster la conversion.';
+      color = AppColors.primary;
+      icon = Icons.bolt;
     } else {
-      insight = 'Attention, ${stats.totalLeadsLost} appels perdus. Assurez-vous d\'activer le transfert d\'appel immédiat.';
-      color = AppColors.danger;
-      icon = Icons.warning_amber_outlined;
+      insight = '${stats.totalLeadsLost} leads perdus. Vérifiez vos réglages de transfert Bland AI.';
+      color = AppColors.error;
+      icon = Icons.warning_amber_rounded;
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: 12),
+          Icon(icon, color: color, size: 28),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Insights de l\'IA',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  insight,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: color.withOpacity(0.9),
-                    height: 1.4,
-                  ),
-                ),
+                Text('Insights Directs', style: TextStyle(fontWeight: FontWeight.w900, color: color, fontSize: 13, letterSpacing: 0.5)),
+                const SizedBox(height: 2),
+                Text(insight, style: TextStyle(fontSize: 14, color: color.withOpacity(0.9), height: 1.3, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -294,10 +250,8 @@ class _UrgencesBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (daily.isEmpty) {
-      return const Center(
-          child: Text('Aucune donnée', style: TextStyle(color: AppColors.textSecondary)));
-    }
+    if (daily.isEmpty) return const Center(child: Text('Aucune donnée'));
+    
     final bars = daily.asMap().entries.map((e) {
       return BarChartGroupData(
         x: e.key,
@@ -305,14 +259,14 @@ class _UrgencesBarChart extends StatelessWidget {
           BarChartRodData(
             toY: e.value.leadsIntercepted.toDouble(),
             color: AppColors.primary,
-            width: 6,
-            borderRadius: BorderRadius.circular(3),
+            width: 8,
+            borderRadius: BorderRadius.circular(4),
           ),
           BarChartRodData(
             toY: e.value.leadsLost.toDouble(),
-            color: AppColors.danger.withOpacity(0.6),
-            width: 6,
-            borderRadius: BorderRadius.circular(3),
+            color: AppColors.error.withOpacity(0.4),
+            width: 8,
+            borderRadius: BorderRadius.circular(4),
           ),
         ],
       );
@@ -321,30 +275,13 @@ class _UrgencesBarChart extends StatelessWidget {
     return BarChart(
       BarChartData(
         barGroups: bars,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (_) =>
-              const FlLine(color: AppColors.borderLight, strokeWidth: 1),
-        ),
+        gridData: const FlGridData(show: false),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 28,
-              getTitlesWidget: (v, _) => Text(
-                '${v.toInt()}',
-                style: const TextStyle(
-                    fontSize: 10, color: AppColors.textTertiary),
-              ),
-            ),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (v, _) => Text(v.toInt().toString(), style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)))),
+          bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
       ),
     );
@@ -357,13 +294,8 @@ class _SavingsLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (daily.isEmpty) {
-      return const Center(
-          child: Text('Aucune donnée', style: TextStyle(color: AppColors.textSecondary)));
-    }
-    final spots = daily.asMap().entries.map((e) {
-      return FlSpot(e.key.toDouble(), e.value.savedCad);
-    }).toList();
+    if (daily.isEmpty) return const Center(child: Text('Aucune donnée'));
+    final spots = daily.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.savedCad)).toList();
 
     return LineChart(
       LineChartData(
@@ -371,38 +303,19 @@ class _SavingsLineChart extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color: AppColors.success,
-            barWidth: 2.5,
-            belowBarData: BarAreaData(
-              show: true,
-              color: AppColors.success.withOpacity(0.08),
-            ),
-            dotData: FlDotData(show: false),
+            color: AppColors.secondary,
+            barWidth: 3,
+            belowBarData: BarAreaData(show: true, color: AppColors.secondary.withOpacity(0.1)),
+            dotData: const FlDotData(show: false),
           ),
         ],
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (_) =>
-              const FlLine(color: AppColors.borderLight, strokeWidth: 1),
-        ),
+        gridData: const FlGridData(show: false),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (v, _) => Text(
-                '${(v / 1000).toStringAsFixed(0)}k',
-                style: const TextStyle(
-                    fontSize: 10, color: AppColors.textTertiary),
-              ),
-            ),
-          ),
-          bottomTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40, getTitlesWidget: (v, _) => Text('${(v / 1000).toStringAsFixed(0)}k', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)))),
+          bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
       ),
     );
