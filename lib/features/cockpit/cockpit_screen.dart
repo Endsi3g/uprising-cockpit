@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:home_widget/home_widget.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -33,6 +34,18 @@ class CockpitScreen extends ConsumerWidget {
     final period = ref.watch(_periodProvider);
     final stats = ref.watch(_statsProvider(period));
     final leads = ref.watch(_leadsProvider(period));
+
+    // Update HomeWidget whenever stats data arrives
+    ref.listen(_statsProvider(period), (prev, next) {
+      next.whenData((s) async {
+        await HomeWidget.saveWidgetData<String>(
+            'savings', '\$${s.totalSavings}');
+        await HomeWidget.updateWidget(
+          name: 'HomeWidgetProvider',
+          iOSName: 'UprisingCockpitWidget',
+        );
+      });
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
