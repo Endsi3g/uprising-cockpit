@@ -50,7 +50,7 @@ class CockpitScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // 1. Map Background (Top half placeholder representing Google Maps)
+          Positioned(
             top: 0,
             left: 0,
             right: 0,
