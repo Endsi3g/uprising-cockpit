@@ -1,7 +1,7 @@
 name: uprising_cockpit
 description: "AI-powered mobile dashboard for Quebec plumbers and roofers."
 publish_to: 'none'
-version: 1.0.3+5
+version: 1.0.4+6
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -28,6 +28,10 @@ dependencies:
 
   # Charts
   fl_chart: ^0.68.0
+
+  # Maps
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
   # Home screen widgets
   home_widget: ^0.7.0

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -50,24 +52,53 @@ class CockpitScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
+          // 1. Real Interactive Map (FlutterMap)
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             height: MediaQuery.of(context).size.height * 0.55,
-            child: Image.network(
-              'https://images.unsplash.com/photo-1569336415962-a4bd9f6dfc0f?auto=format&fit=crop&q=80&w=800&h=600', // Cleaner, lighter map
-              fit: BoxFit.cover,
-              color: AppColors.background.withOpacity(0.4), 
-              colorBlendMode: BlendMode.lighten,
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: const LatLng(45.5017, -73.5673), // Montreal center
+                initialZoom: 12,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.uprising.cockpit',
+                  tileDisplay: const TileDisplay.fadeIn(),
+                ),
+                leadsAsync.when(
+                  data: (leads) => MarkerLayer(
+                    markers: leads.asMap().entries.map((e) {
+                      final i = e.key;
+                      // Simuler des positions décalées autour de Montréal car le modèle Lead n'a pas encore de lat/long
+                      return Marker(
+                        point: LatLng(45.5017 + (i * 0.015), -73.5673 + (i * 0.01)),
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.location_on,
+                          color: AppColors.primary,
+                          size: 40,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  loading: () => const MarkerLayer(markers: []),
+                  error: (_, __) => const MarkerLayer(markers: []),
+                ),
+              ],
             ),
           ),
           
           // Gradient fade for top header readability
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+            top: 0, left: 0, right: 0,
             height: 180,
             child: Container(
               decoration: BoxDecoration(
@@ -75,8 +106,8 @@ class CockpitScreen extends ConsumerWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.background.withOpacity(0.95),
-                    AppColors.background.withOpacity(0.6),
+                    AppColors.background.withOpacity(0.9),
+                    AppColors.background.withOpacity(0.4),
                     AppColors.background.withOpacity(0.0),
                   ],
                 ),
@@ -105,16 +136,9 @@ class CockpitScreen extends ConsumerWidget {
                         ),
                         Row(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.notifications_none, size: 28),
-                              color: AppColors.textPrimary,
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.auto_awesome, size: 26),
-                              color: AppColors.textPrimary,
-                              onPressed: () => context.push('/ai'),
-                            ),
+                            _HeaderIcon(icon: Icons.notifications_none, onTap: () {}),
+                            const SizedBox(width: 8),
+                            _HeaderIcon(icon: Icons.auto_awesome, onTap: () => context.push('/ai')),
                           ],
                         ),
                       ],
@@ -138,7 +162,7 @@ class CockpitScreen extends ConsumerWidget {
                   ),
                 ),
 
-                // Large spacing exposing the background Map
+                // Large spacing exposing the interactive Map
                 const SliverToBoxAdapter(child: SizedBox(height: 160)),
 
                 // Overlap text over map (Visits worth) & Right pill button
@@ -215,7 +239,7 @@ class CockpitScreen extends ConsumerWidget {
 
                 const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-                // Horizontal Visit Cards (Jobber layout)
+                // Horizontal Visit Cards
                 SliverToBoxAdapter(
                   child: SizedBox(
                     height: 145,
@@ -323,10 +347,10 @@ class CockpitScreen extends ConsumerWidget {
           // 3. Floating Action Button (+) 
           Positioned(
             right: 20,
-            bottom: 20, // Tab bar avoidance padding handled implicitly or needs padding
+            bottom: 20,
             child: SafeArea(
               child: FloatingActionButton(
-                backgroundColor: AppColors.textPrimary, // Jobber uses dark rounded button
+                backgroundColor: AppColors.textPrimary,
                 elevation: 4,
                 shape: const CircleBorder(),
                 onPressed: () {},
@@ -341,7 +365,7 @@ class CockpitScreen extends ConsumerWidget {
 
   Widget _buildEmptyVisitCard() {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         width: 320,
         decoration: BoxDecoration(
@@ -363,6 +387,29 @@ class CockpitScreen extends ConsumerWidget {
   }
 }
 
+class _HeaderIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _HeaderIcon({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.5),
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Icon(icon, color: AppColors.textPrimary, size: 24),
+      ),
+    );
+  }
+}
+
 class _JobberVisitCard extends StatelessWidget {
   final Lead lead;
 
@@ -376,7 +423,7 @@ class _JobberVisitCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/leads/${lead.id}'),
       child: Container(
-        width: 310, // Width constraint for horizontal list
+        width: 310,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -391,7 +438,6 @@ class _JobberVisitCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Jobber-style Green Vertical Line
             Container(
               width: 6,
               decoration: const BoxDecoration(

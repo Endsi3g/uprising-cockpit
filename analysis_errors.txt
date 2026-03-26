@@ -1,0 +1,96 @@
+Analyzing uprising_cockpit...                                   
+
+   info - Use 'const' with the constructor to improve performance - lib\core\supabase\shell_scaffold.dart:26:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\core\supabase\shell_scaffold.dart:28:19 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\core\supabase\shell_scaffold.dart:28:31 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\ai_chat\ai_chat_screen.dart:83:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\ai_chat\ai_chat_screen.dart:146:25 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\ai_chat\ai_chat_screen.dart:148:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\ai_chat\ai_chat_screen.dart:149:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\ai_chat\ai_chat_screen.dart:240:27 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\ai_chat\ai_chat_screen.dart:320:20 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\calendar\booking_detail_screen.dart:50:46 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\features\calendar\calendar_screen.dart:47:13 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\calendar\calendar_screen.dart:49:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\clients\client_detail_screen.dart:76:15 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\features\clients\client_detail_screen.dart:78:27 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\features\clients\client_detail_screen.dart:79:19 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\clients\client_detail_screen.dart:107:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\clients\client_detail_screen.dart:217:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\clients\client_detail_screen.dart:218:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\clients\clients_screen.dart:128:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\clients\clients_screen.dart:179:50 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\features\cockpit\cockpit_screen.dart:62:24 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:109:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:110:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:111:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:213:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:376:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:403:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\cockpit_screen.dart:433:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\widgets\kpi_hero_card.dart:30:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\widgets\kpi_hero_card.dart:93:31 - deprecated_member_use
+warning - Unused import: 'package:go_router/go_router.dart' - lib\features\cockpit\widgets\lead_card.dart:2:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\cockpit\widgets\period_filter_tabs.dart:43:49 - deprecated_member_use
+warning - Duplicate import - lib\features\jobs\jobs_screen.dart:5:8 - duplicate_import
+   info - Use 'const' with the constructor to improve performance - lib\features\lead_detail\lead_detail_screen.dart:79:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\lead_detail\lead_detail_screen.dart:85:17 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\lead_detail\lead_detail_screen.dart:244:38 - deprecated_member_use
+warning - Unused import: '../../core/supabase/supabase_config.dart' - lib\features\settings\settings_screen.dart:3:8 - unused_import
+warning - Unused import: '../../core/constants.dart' - lib\features\settings\settings_screen.dart:5:8 - unused_import
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\settings_screen.dart:37:11 - prefer_const_constructors
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor or activeTrackColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\features\settings\settings_screen.dart:64:21 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\settings_screen.dart:74:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\settings_screen.dart:95:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\settings_screen.dart:159:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\settings\settings_screen.dart:160:20 - prefer_const_constructors
+warning - A value for optional parameter 'button' isn't ever given - lib\features\shared\screens\error_404_screen.dart:54:10 - unused_element_parameter
+warning - A value for optional parameter 'button' isn't ever given - lib\features\shared\screens\under_maintenance_screen.dart:48:10 - unused_element_parameter
+warning - Unused import: 'package:go_router/go_router.dart' - lib\features\shared\screens\welcome_screen.dart:3:8 - unused_import
+warning - A value for optional parameter 'btnText' isn't ever given - lib\features\shared\screens\welcome_screen.dart:52:10 - unused_element_parameter
+   info - The imported package 'fl_chart' isn't a dependency of the importing package - lib\features\stats\stats_screen.dart:1:8 - depend_on_referenced_packages
+  error - Target of URI doesn't exist: 'package:fl_chart/fl_chart.dart' - lib\features\stats\stats_screen.dart:1:8 - uri_does_not_exist
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:150:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:152:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:161:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:252:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:254:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:278:34 - deprecated_member_use
+  error - The method 'BarChartGroupData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:302:14 - undefined_method
+  error - The method 'BarChartRodData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:305:11 - undefined_method
+  error - The method 'BarChartRodData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:311:11 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:313:37 - deprecated_member_use
+  error - The method 'BarChart' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:321:12 - undefined_method
+  error - The method 'BarChartData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:322:7 - undefined_method
+  error - The method 'FlGridData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:324:19 - undefined_method
+  error - The name 'FlLine' isn't a class - lib\features\stats\stats_screen.dart:328:21 - creation_with_non_type
+  error - The method 'FlBorderData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:330:21 - undefined_method
+  error - The method 'FlTitlesData' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:331:21 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:332:23 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:333:25 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:343:25 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:344:25 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:346:22 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:346:45 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:347:24 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_UrgencesBarChart' - lib\features\stats\stats_screen.dart:347:47 - undefined_method
+  error - The method 'FlSpot' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:365:14 - undefined_method
+  error - The method 'LineChart' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:368:12 - undefined_method
+  error - The method 'LineChartData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:369:7 - undefined_method
+  error - The method 'LineChartBarData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:371:11 - undefined_method
+  error - The method 'BarAreaData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:376:27 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\stats\stats_screen.dart:378:40 - deprecated_member_use
+  error - The method 'FlDotData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:380:22 - undefined_method
+  error - The method 'FlGridData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:383:19 - undefined_method
+  error - The name 'FlLine' isn't a class - lib\features\stats\stats_screen.dart:387:21 - creation_with_non_type
+  error - The method 'FlBorderData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:389:21 - undefined_method
+  error - The method 'FlTitlesData' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:390:21 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:391:23 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:392:25 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:402:25 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:403:27 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:404:22 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:404:45 - undefined_method
+  error - The method 'AxisTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:405:24 - undefined_method
+  error - The method 'SideTitles' isn't defined for the type '_SavingsLineChart' - lib\features\stats\stats_screen.dart:405:47 - undefined_method
+
