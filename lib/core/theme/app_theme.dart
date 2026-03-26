@@ -1,236 +1,130 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary Palette (Jobber Tory Blue)
-  static const primary = Color(0xFF0D609E);
-  static const primaryLight = Color(0xFF1A7DC9);
-  static const primarySurface = Color(0xFFE1F3FE); // Pale Blue from minimalist-ui
-
-  // Semantic (Muted Pastels from minimalist-ui)
-  static const success = Color(0xFF346538);
-  static const successSurface = Color(0xFFEDF3EC); // Pale Green 
-  static const warning = Color(0xFF956400);
-  static const warningSurface = Color(0xFFFBF3DB); // Pale Yellow
-  static const danger = Color(0xFF9F2F2D);
-  static const dangerSurface = Color(0xFFFDEBEC); // Pale Red
-
-  // Neutrals (Editorial Monochrome)
-  static const background = Color(0xFFFBFBFA); // Bone/Warm off-white
-  static const surface = Color(0xFFFFFFFF); // Pure white cards
-  static const surfaceElevated = Color(0xFFF9F9F8);
-  static const border = Color(0xFFEAEAEA); // 1px solid rule
-  static const borderLight = Color(0xFFF3F3F3);
-
-  // Text
-  static const textPrimary = Color(0xFF111111); // Off-black, charcoal
-  static const textSecondary = Color(0xFF787774); // Muted gray
-  static const textTertiary = Color(0xFFAFAFAC);
-  static const textInverse = Color(0xFFFFFFFF);
-
-  // Status badge colors
-  static const badgeNew = primary;
-  static const badgeNewSurface = primarySurface;
-  static const badgeBooked = success;
-  static const badgeBookedSurface = successSurface;
-  static const badgeLost = danger;
-  static const badgeLostSurface = dangerSurface;
-  static const badgeCompleted = textSecondary;
-  static const badgeCompletedSurface = Color(0xFFF3F4F6);
+  // Vibrant Neutral Palette (Zinc / Slate with Electric Accents)
+  static const primary = Color(0xFF0066FF); // Electric Blue
+  static const primarySurface = Color(0xFFE6F0FF);
+  
+  static const secondary = Color(0xFF10B981); // Emerald
+  static const secondarySurface = Color(0xFFECFDF5);
+  
+  static const background = Color(0xFFF9FAFB); // Very Light Gray
+  static const surface = Colors.white;
+  static const border = Color(0xFFE5E7EB);
+  static const borderLight = Color(0xFFF3F4F6);
+  
+  static const textPrimary = Color(0xFF0F172A); // Zinc-950
+  static const textSecondary = Color(0xFF64748B); // Slate-500
+  static const textTertiary = Color(0xFF94A3B8);
+  
+  static const success = Color(0xFF10B981);
+  static const error = Color(0xFFEF4444);
+  static const warning = Color(0xFFF59E0B);
+  
+  static const glassBorder = Color(0x33FFFFFF);
+  static const glassBackground = Color(0x1AFFFFFF);
 }
 
 class AppTheme {
-  static ThemeData get lightTheme {
-    final base = ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
-        secondary: AppColors.primaryLight,
-        surface: AppColors.background,
-        error: AppColors.danger,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: AppColors.textPrimary,
-        onError: Colors.white,
-      ),
-      scaffoldBackgroundColor: AppColors.background,
-    );
-
-    // Using Outfit for a clean, premium geometric sans that avoids the "standard Inter" feel.
+  static ThemeData get light {
+    final base = ThemeData.light();
     return base.copyWith(
+      scaffoldBackgroundColor: AppColors.background,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        surface: AppColors.surface,
+        background: AppColors.background,
+      ),
       textTheme: GoogleFonts.outfitTextTheme(base.textTheme).copyWith(
-        displayLarge: GoogleFonts.outfit(
-          fontSize: 42,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-          letterSpacing: -1.2,
-          height: 1.1,
-        ),
-        displayMedium: GoogleFonts.outfit(
-          fontSize: 32,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-          letterSpacing: -0.8,
-          height: 1.1,
-        ),
         headlineLarge: GoogleFonts.outfit(
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
+          fontWeight: FontWeight.w900,
+          fontSize: 32,
           letterSpacing: -0.5,
         ),
         headlineMedium: GoogleFonts.outfit(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          fontWeight: FontWeight.w800,
+          fontSize: 24,
           letterSpacing: -0.3,
         ),
         titleLarge: GoogleFonts.outfit(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
-        ),
-        titleMedium: GoogleFonts.outfit(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
         ),
         bodyLarge: GoogleFonts.outfit(
-          fontSize: 15,
-          fontWeight: FontWeight.w400,
           color: AppColors.textPrimary,
-          height: 1.6,
+          fontSize: 16,
         ),
         bodyMedium: GoogleFonts.outfit(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
-          height: 1.5,
-        ),
-        bodySmall: GoogleFonts.outfit(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textTertiary,
-        ),
-        labelLarge: GoogleFonts.outfit(
           fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textInverse,
         ),
       ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0, // Rigid flat header
-        shadowColor: Colors.transparent,
-        titleTextStyle: GoogleFonts.outfit(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-          letterSpacing: -0.2,
-        ),
-        centerTitle: false,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 22),
-      ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.surface,
-        elevation: 0, // STRICTLY 0 elevation
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.border, width: 1),
-        ),
-        margin: EdgeInsets.zero,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.textPrimary, // Ultra minimal CTA
-          foregroundColor: Colors.white,
-          elevation: 0, // No shadow
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6), // Sharp 6px radius
-          ),
-          textStyle: GoogleFonts.outfit(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.1,
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textPrimary,
-          backgroundColor: AppColors.surface,
-          side: const BorderSide(color: AppColors.border, width: 1.0),
-          minimumSize: const Size(double.infinity, 50),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-          textStyle: GoogleFonts.outfit(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.1,
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          textStyle: GoogleFonts.outfit(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.surfaceElevated,
-        hoverColor: Colors.transparent,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.textPrimary, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: GoogleFonts.outfit(color: AppColors.textTertiary, fontSize: 14),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: AppColors.surface,
-        selectedColor: AppColors.primarySurface,
-        labelStyle: GoogleFonts.outfit(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100), // Pill shapes only for tags
-        ),
-        side: BorderSide.none,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.border,
-        thickness: 1,
-        space: 1,
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textTertiary,
         elevation: 0,
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.w500),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: AppColors.border),
+        ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
+      ),
+    );
+  }
+}
+
+/// A premium glassmorphism container with refraction border
+class GlassCard extends StatelessWidget {
+  final Widget child;
+  final double blur;
+  final double opacity;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final Border? border;
+
+  const GlassCard({
+    super.key,
+    required this.child,
+    this.blur = 12,
+    this.opacity = 0.1,
+    this.borderRadius,
+    this.padding,
+    this.border,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(opacity),
+            borderRadius: borderRadius ?? BorderRadius.circular(24),
+            border: border ?? Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: child,
+        ),
       ),
     );
   }

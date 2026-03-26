@@ -5,6 +5,7 @@ import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -52,18 +53,16 @@ class CockpitScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // 1. Real Interactive Map (FlutterMap)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.55,
+          // 1. Real Interactive Map (FlutterMap) - Fullscreen background or half?
+          // User wanted interactive. Let's make it more immersive.
+          Positioned.fill(
+            bottom: MediaQuery.of(context).size.height * 0.35,
             child: FlutterMap(
-              options: MapOptions(
-                initialCenter: const LatLng(45.5017, -73.5673), // Montreal center
-                initialZoom: 12,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              options: const MapOptions(
+                initialCenter: LatLng(45.5017, -73.5673),
+                initialZoom: 13,
+                interactionOptions: InteractionOptions(
+                  flags: InteractiveFlag.all, // Fully interactive
                 ),
               ),
               children: [
@@ -76,16 +75,11 @@ class CockpitScreen extends ConsumerWidget {
                   data: (leads) => MarkerLayer(
                     markers: leads.asMap().entries.map((e) {
                       final i = e.key;
-                      // Simuler des positions décalées autour de Montréal car le modèle Lead n'a pas encore de lat/long
                       return Marker(
-                        point: LatLng(45.5017 + (i * 0.015), -73.5673 + (i * 0.01)),
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.location_on,
-                          color: AppColors.primary,
-                          size: 40,
-                        ),
+                        point: LatLng(45.5017 + (i * 0.008), -73.5673 + (i * 0.005)),
+                        width: 50,
+                        height: 50,
+                        child: const _AnimatedMarker(),
                       );
                     }).toList(),
                   ),
@@ -96,436 +90,377 @@ class CockpitScreen extends ConsumerWidget {
             ),
           ),
           
-          // Gradient fade for top header readability
+          // Liquid Glass Header overlay
           Positioned(
             top: 0, left: 0, right: 0,
-            height: 180,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.background.withOpacity(0.9),
-                    AppColors.background.withOpacity(0.4),
-                    AppColors.background.withOpacity(0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // 2. Scrollable Layer
-          SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                // Header (Date + Icons)
-                SliverToBoxAdapter(
+            child: GlassCard(
+                borderRadius: BorderRadius.zero,
+                opacity: 0.15,
+                blur: 15,
+                padding: const EdgeInsets.only(bottom: 20),
+                border: const Border(bottom: BorderSide(color: Colors.white24, width: 1)),
+                child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          dateFormatted,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            _HeaderIcon(icon: Icons.notifications_none, onTap: () {}),
-                            const SizedBox(width: 8),
-                            _HeaderIcon(icon: Icons.auto_awesome, onTap: () => context.push('/ai')),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Greeting
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(
-                      'Bonjour, Alex',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            color: AppColors.textPrimary,
-                          ),
-                    ),
-                  ),
-                ),
-
-                // Large spacing exposing the interactive Map
-                const SliverToBoxAdapter(child: SizedBox(height: 160)),
-
-                // Overlap text over map (Visits worth) & Right pill button
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            leadsAsync.when(
-                              data: (leads) => Text(
-                                '${leads.length} urgence${leads.length > 1 ? 's' : ''} en attente',
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.3,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              loading: () => const Text('Chargement...', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                              error: (_, __) => const Text('Erreur', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              '0 terminées aujourd\'hui',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        // View all Pill Action
-                        GestureDetector(
-                          onTap: () => context.push('/jobs'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              children: [
-                                Text(
-                                  'Tout voir',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(width: 4),
-                                Icon(Icons.chevron_right, size: 18, color: AppColors.textPrimary),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-                // Horizontal Visit Cards
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 145,
-                    child: leadsAsync.when(
-                      data: (leads) {
-                        if (leads.isEmpty) {
-                          return _buildEmptyVisitCard();
-                        }
-                        return ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: leads.length,
-                          itemBuilder: (context, index) {
-                            return _JobberVisitCard(lead: leads[index]);
-                          },
-                        );
-                      },
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, _) => Center(child: Text('Erreur: $e')),
-                    ),
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-
-                // "This week" and stats preview
-                SliverToBoxAdapter(
-                  child: Container(
-                    color: AppColors.background,
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Text(dateFormatted, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                            Row(
                               children: [
-                                Text(
-                                  'Cette semaine',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Aperçu des performances',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
+                                _HeaderIconButton(icon: Icons.notifications_outlined, onTap: () {}),
+                                const SizedBox(width: 12),
+                                _HeaderIconButton(icon: Icons.auto_awesome_outlined, isAccent: true, onTap: () => context.push('/ai')),
                               ],
-                            ),
-                            TextButton(
-                              onPressed: () => context.push('/stats'),
-                              child: const Text(
-                                'Voir stats >',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
-                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        statsAsync.when(
-                          data: (s) => Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.savings_outlined, color: AppColors.success, size: 28),
-                                const SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('Économies réalisées', style: TextStyle(color: AppColors.textSecondary)),
-                                    Text(s.formattedTotalSaved, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          loading: () => const SizedBox.shrink(),
-                          error: (_, __) => const SizedBox.shrink(),
-                        )
+                        const SizedBox(height: 4),
+                        Text('Bonjour, Alex', style: Theme.of(context).textTheme.headlineLarge),
                       ],
                     ),
                   ),
-                ),
-              ],
+                ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0, curve: Curves.easeOutCubic),
             ),
+          ),
+
+          // 2. Scrollable Action Sheet Content
+          DraggableScrollableSheet(
+            initialChildSize: 0.45,
+            minChildSize: 0.4,
+            maxChildSize: 0.95,
+            builder: (ctx, scrollController) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -5)),
+                  ],
+                ),
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  children: [
+                    // Handle bar
+                    Center(
+                      child: Container(
+                        width: 40, height: 4,
+                        decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Live Status / Urgences Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                             leadsAsync.when(
+                               data: (leads) => Text(
+                                 '${leads.length} urgence${leads.length > 1 ? 's' : ''} en attente',
+                                 style: Theme.of(context).textTheme.headlineMedium,
+                               ),
+                               loading: () => const Text('Calcul...', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                               error: (_, __) => const Text('Erreur', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                             ),
+                             const SizedBox(height: 4),
+                             const Row(
+                               children: [
+                                 _PulseDot(),
+                                 SizedBox(width: 8),
+                                 Text('Mode Intervention Active', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 13)),
+                               ],
+                             ),
+                          ],
+                        ),
+                        _SecondaryPill(label: 'Tout voir', onTap: () => context.push('/jobs')),
+                      ],
+                    ).animate(delay: 200.ms).fadeIn().slideX(begin: -0.1),
+
+                    const SizedBox(height: 24),
+
+                    // Horizontal List of Leads (Jobber Bento Style)
+                    SizedBox(
+                      height: 155,
+                      child: leadsAsync.when(
+                        data: (leads) {
+                          if (leads.isEmpty) return _buildEmptyState();
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: leads.length,
+                            itemBuilder: (ctx, i) => _BentoVisitCard(lead: leads[i]).animate(delay: (300 + i * 100).ms).fadeIn().scale(begin: const Offset(0.9, 0.9)),
+                          );
+                        },
+                        loading: () => const Center(child: CircularProgressIndicator()),
+                        error: (e, _) => Center(child: Text('Erreur data: $e')),
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Performance Insights (AI)
+                    Text('Performances', style: Theme.of(context).textTheme.titleLarge)
+                        .animate(delay: 500.ms).fadeIn(),
+                    const SizedBox(height: 16),
+                    
+                    statsAsync.when(
+                      data: (s) => _PremiumStatsCard(stats: s).animate(delay: 600.ms).fadeIn().slideY(begin: 0.1),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                    
+                    const SizedBox(height: 120), // Bottom padding
+                  ],
+                ),
+              );
+            },
           ),
           
           // 3. Floating Action Button (+) 
           Positioned(
-            right: 20,
-            bottom: 20,
-            child: SafeArea(
-              child: FloatingActionButton(
-                backgroundColor: AppColors.textPrimary,
-                elevation: 4,
-                shape: const CircleBorder(),
-                onPressed: () {},
-                child: const Icon(Icons.add, color: Colors.white, size: 28),
-              ),
-            ),
+            right: 24,
+            bottom: 30,
+            child: FloatingActionButton.large(
+              onPressed: () {},
+              backgroundColor: AppColors.textPrimary,
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              child: const Icon(Icons.add, color: Colors.white, size: 36),
+            ).animate(delay: 800.ms).scale(curve: Curves.elasticOut),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyVisitCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: 320,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Center(
-          child: Text('Aucune urgence', style: TextStyle(color: AppColors.textSecondary)),
-        ),
+  Widget _buildEmptyState() {
+    return Container(
+      width: 320,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border),
       ),
+      child: const Center(child: Text('Aucune urgence', style: TextStyle(color: AppColors.textSecondary))),
     );
   }
 }
 
-class _HeaderIcon extends StatelessWidget {
+class _AnimatedMarker extends StatelessWidget {
+  const _AnimatedMarker();
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 24, height: 24,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.3),
+            shape: BoxShape.circle,
+          ),
+        ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(1, 1), end: const Offset(3, 3), duration: 2.s).fadeOut(),
+        const Icon(Icons.location_on, color: AppColors.primary, size: 40),
+      ],
+    );
+  }
+}
+
+class _PulseDot extends StatelessWidget {
+  const _PulseDot();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 8, height: 8,
+      decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle),
+    ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.3, 1.3), duration: 1.s, curve: Curves.easeInOut);
+  }
+}
+
+class _HeaderIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const _HeaderIcon({required this.icon, required this.onTap});
+  final bool isAccent;
+  const _HeaderIconButton({required this.icon, required this.onTap, this.isAccent = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 48, height: 48,
+        decoration: BoxDecoration(
+          color: isAccent ? AppColors.primary.withOpacity(0.1) : Colors.white24,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isAccent ? AppColors.primary.withOpacity(0.2) : Colors.white38),
+        ),
+        child: Icon(icon, color: isAccent ? AppColors.primary : AppColors.textPrimary, size: 24),
+      ),
+    ).animate(onPlay: (c) => c.repeat(reverse: true))
+     .shimmer(delay: 5.s, duration: 2.s, color: Colors.white24);
+  }
+}
+
+class _SecondaryPill extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _SecondaryPill({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: 44,
-        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.5),
-          shape: BoxShape.circle,
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
-        child: Icon(icon, color: AppColors.textPrimary, size: 24),
+        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
       ),
     );
   }
 }
 
-class _JobberVisitCard extends StatelessWidget {
+class _BentoVisitCard extends StatelessWidget {
   final Lead lead;
-
-  const _JobberVisitCard({required this.lead});
+  const _BentoVisitCard({required this.lead});
 
   @override
   Widget build(BuildContext context) {
     final clientName = lead.client?.name ?? 'Client Inconnu';
-    final initials = clientName.length > 1 ? clientName.substring(0, 2).toUpperCase() : '?';
+    final initials = clientName.isNotEmpty ? clientName[0].toUpperCase() : '?';
 
-    return GestureDetector(
-      onTap: () => context.push('/leads/${lead.id}'),
-      child: Container(
-        width: 310,
-        margin: const EdgeInsets.only(right: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 6,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/leads/${lead.id}'),
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      clientName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                        color: AppColors.textPrimary,
-                      ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: AppColors.primarySurface, borderRadius: BorderRadius.circular(8)),
+                      child: const Text('URGENCE', style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      DateFormat('HH:mm').format(lead.triggeredAt),
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      lead.clientAddress ?? 'Aucune adresse enregistrée',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            lead.displayTitle,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: AppColors.textSecondary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.borderLight),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            initials,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    Text(DateFormat('HH:mm').format(lead.triggeredAt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w700)),
                   ],
                 ),
-              ),
+                const Spacer(),
+                Text(clientName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Expanded(child: Text(lead.clientAddress ?? 'Pas d\'adresse', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    CircleAvatar(radius: 12, backgroundColor: AppColors.primary, child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
+                    const SizedBox(width: 8),
+                    const Text('Intervention immédiate', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _PremiumStatsCard extends StatelessWidget {
+  final PeriodStats stats;
+  const _PremiumStatsCard({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.insights, color: AppColors.primary, size: 32),
+              const SizedBox(width: 16),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Valeur Interceptée', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                  Text('IA en service 24/7', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
+                ],
+              ),
+              const Spacer(),
+              Text(stats.formattedTotalSaved, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -1)),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Divider(color: AppColors.border),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _StatItem(label: 'Taux Convers.', value: '${stats.conversionRate.toStringAsFixed(1)}%'),
+              _StatItem(label: 'Urgences', value: stats.totalLeadsIntercepted.toString()),
+              _StatItem(label: 'Temps rép.', value: '1.2s'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatItem({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w800)),
+      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -42,57 +43,52 @@ class ClientsScreen extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-              child: Text('Clients',
-                  style: Theme.of(context).textTheme.headlineLarge),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Clients', style: Theme.of(context).textTheme.headlineLarge),
+                   const SizedBox(height: 4),
+                   Text('Répertoire complet de vos contacts', style: Theme.of(context).textTheme.bodyMedium),
+                ],
+              ).animate().fadeIn().slideX(begin: -0.1),
             ),
             
-            // Search Bar
+            // Search Bar with Glass/Premium Look
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
                 ),
                 child: TextField(
                   onChanged: (v) => ref.read(_searchQueryProvider.notifier).state = v,
                   decoration: const InputDecoration(
-                    hintText: 'Rechercher un client...',
-                    prefixIcon: Icon(Icons.search, color: AppColors.textTertiary),
+                    hintText: 'Rechercher un nom, téléphone, ville...',
+                    prefixIcon: Icon(Icons.search, color: AppColors.primary),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
               ),
-            ),
+            ).animate(delay: 200.ms).fadeIn(),
             
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
 
             Expanded(
               child: clientsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(child: Text('Erreur: $e')),
                 data: (clients) {
-                  if (clients.isEmpty) {
-                    return const Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.people_outline,
-                              size: 48, color: AppColors.textTertiary),
-                          SizedBox(height: 12),
-                          Text('Aucun client trouvé',
-                              style:
-                                  TextStyle(color: AppColors.textSecondary)),
-                        ],
-                      ),
-                    );
-                  }
+                  if (clients.isEmpty) return _buildEmptyState();
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     itemCount: clients.length,
-                    itemBuilder: (ctx, i) => _ClientCard(client: clients[i]),
+                    itemBuilder: (ctx, i) => _ClientCard(client: clients[i]).animate(delay: (300 + i * 50).ms).fadeIn().slideY(begin: 0.1),
                   );
                 },
               ),
@@ -102,10 +98,24 @@ class ClientsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.textPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: const Icon(Icons.person_add_alt_1, color: Colors.white),
-      ),
+      ).animate(delay: 600.ms).scale(curve: Curves.elasticOut),
     );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.people_outline, size: 64, color: AppColors.textTertiary),
+          const SizedBox(height: 16),
+          const Text('Aucun client trouvé', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+        ],
+      ),
+    ).animate().fadeIn();
   }
 }
 
@@ -118,23 +128,16 @@ class _ClientCard extends StatelessWidget {
     final initials = client.name.isNotEmpty ? client.name[0].toUpperCase() : '?';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           onTap: () => context.push('/clients/${client.id}'),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -143,48 +146,32 @@ class _ClientCard extends StatelessWidget {
                 Row(
                   children: [
                     CircleAvatar(
-                      radius: 24,
+                      radius: 28,
                       backgroundColor: AppColors.primarySurface,
-                      child: Text(
-                        initials,
-                        style: const TextStyle(
-                            color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 18),
-                      ),
+                      child: Text(initials, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 20)),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(client.name,
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          Text(client.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: AppColors.textPrimary)),
                           const SizedBox(height: 4),
-                          if (client.city != null)
-                            Row(
-                              children: [
-                                const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textTertiary),
-                                const SizedBox(width: 4),
-                                Text(client.city!,
-                                    style: const TextStyle(
-                                        fontSize: 12, color: AppColors.textTertiary)),
-                              ],
-                            ),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
+                              const SizedBox(width: 4),
+                              Text(client.city ?? 'Ville inconnue', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                    // AI Status Tag
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text('AI Gagné', style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ),
+                    _AiInterventionBadge(),
                   ],
                 ),
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   child: Divider(height: 1, color: AppColors.borderLight),
                 ),
                 Row(
@@ -192,30 +179,30 @@ class _ClientCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        _QuickActionButton(
-                          icon: Icons.phone_outlined,
+                        _ClientActionButton(
+                          icon: Icons.phone_forwarded_outlined,
                           label: 'Appeler',
                           onTap: () async {
-                            if (client.phone != null) {
-                              final url = Uri.parse('tel:${client.phone}');
-                              if (await canLaunchUrl(url)) await launchUrl(url);
-                            }
+                             if (client.phone != null) {
+                               final url = Uri.parse('tel:${client.phone}');
+                               if (await canLaunchUrl(url)) await launchUrl(url);
+                             }
                           },
                         ),
-                        const SizedBox(width: 8),
-                        _QuickActionButton(
+                        const SizedBox(width: 12),
+                        _ClientActionButton(
                           icon: Icons.chat_bubble_outline,
-                          label: 'SMS',
+                          label: 'WhatsApp',
                           onTap: () async {
-                            if (client.phone != null) {
-                              final url = Uri.parse('sms:${client.phone}');
-                              if (await canLaunchUrl(url)) await launchUrl(url);
-                            }
+                             if (client.phone != null) {
+                               final url = Uri.parse('https://wa.me/${client.phone}');
+                               if (await canLaunchUrl(url)) await launchUrl(url);
+                             }
                           },
                         ),
                       ],
                     ),
-                    const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                    const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textTertiary),
                   ],
                 ),
               ],
@@ -227,32 +214,53 @@ class _ClientCard extends StatelessWidget {
   }
 }
 
-class _QuickActionButton extends StatelessWidget {
+class _ClientActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-
-  const _QuickActionButton({required this.icon, required this.label, required this.onTap});
+  const _ClientActionButton({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.background,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.borderLight),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 14, color: AppColors.textPrimary),
-            const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            Icon(icon, size: 16, color: AppColors.textPrimary),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
           ],
         ),
       ),
     );
+  }
+}
+
+class _AiInterventionBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.secondarySurface,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.auto_awesome, color: AppColors.secondary, size: 12),
+          SizedBox(width: 4),
+          Text('AI WIN', style: TextStyle(color: AppColors.secondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+        ],
+      ),
+    ).animate(onPlay: (c) => c.repeat(reverse: true))
+     .shimmer(duration: 2.s, color: Colors.white);
   }
 }

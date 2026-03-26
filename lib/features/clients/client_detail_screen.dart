@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/constants.dart';
 import '../../core/theme/app_theme.dart';
@@ -25,124 +27,176 @@ class ClientDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Fiche client', style: TextStyle(fontSize: 18, color: AppColors.textPrimary)),
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-      ),
       body: clientAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Erreur: $e')),
         data: (client) {
-          if (client == null) {
-            return const Center(child: Text('Client introuvable'));
-          }
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              // Header
-              Center(
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: AppColors.primarySurface,
-                  child: Text(
-                    client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
-                    style: const TextStyle(fontSize: 32, color: AppColors.primary, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  client.name,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 24),
+          if (client == null) return const Center(child: Text('Client introuvable'));
+          
+          final initials = client.name.isNotEmpty ? client.name[0].toUpperCase() : '?';
 
-              // Contact Info
-              _SectionCard(
-                title: 'Coordonnées',
-                children: [
-                  _InfoRow(icon: Icons.phone_outlined, text: client.phone ?? 'Non spécifié'),
-                  _InfoRow(icon: Icons.location_on_outlined, text: client.address ?? 'Non spécifié'),
-                  _InfoRow(icon: Icons.location_city_outlined, text: client.city ?? 'Non spécifié'),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // AI Analysis
-              _SectionCard(
-                title: 'Analyse IA',
-                children: [
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: const [
-                      _AiTag('Client VIP', AppColors.success),
-                      _AiTag('Réactif', AppColors.primary),
-                      _AiTag('Aime les détails', AppColors.warning),
+          return CustomScrollView(
+            slivers: [
+              // Premium Glass Header with Avatar
+              SliverAppBar(
+                expandedHeight: 240,
+                pinned: true,
+                stretch: true,
+                backgroundColor: AppColors.background,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Vibrant Gradient Background
+                      Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                            colors: [AppColors.primary, Color(0xFF0033FF)],
+                          ),
+                        ),
+                      ),
+                      // Glass Overlay for Name/Avatar
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 40),
+                            CircleAvatar(
+                              radius: 46,
+                              backgroundColor: Colors.white,
+                              child: CircleAvatar(
+                                radius: 42,
+                                backgroundColor: AppColors.primarySurface,
+                                child: Text(initials, style: const TextStyle(fontSize: 36, color: AppColors.primary, fontWeight: FontWeight.w900)),
+                              ),
+                            ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+                            const SizedBox(height: 16),
+                            Text(
+                              client.name,
+                              style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
+                              child: const Text('CLIENT VIP', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                            ).animate().fadeIn(delay: 400.ms),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Résumé du profil : Ce client préfère être contacté par téléphone et pose beaucoup de questions techniques. Assurez-vous d\'avoir les détails du devis prêts avant d\'appeler.',
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Action suggérée : Rapport de suivi à envoyer d\'ici 48h.',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Bland AI Integration
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primary.withOpacity(0.8), AppColors.primary],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.record_voice_over_outlined, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text('Assistant Vocal (Bland AI)', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Lancer un appel automatisé avec l\'IA pour qualifier le besoin ou confirmer un rendez-vous.',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primary,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Quick Actions Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _CircularAction(icon: Icons.phone_outlined, label: 'Appeler', onTap: () => _launchUrl('tel:${client.phone}')),
+                          _CircularAction(icon: Icons.chat_bubble_outline, label: 'SMS', onTap: () => _launchUrl('sms:${client.phone}')),
+                          _CircularAction(icon: Icons.mail_outline, label: 'Email', onTap: () => _launchUrl('mailto:${client.email}')),
+                          _CircularAction(icon: Icons.message_outlined, label: 'WhatsApp', onTap: () => _launchUrl('https://wa.me/${client.phone}')),
+                        ],
+                      ).animate().fadeIn().slideY(begin: 0.2),
+
+                      const SizedBox(height: 40),
+
+                      // Coordinates Card
+                      _DetailSection(
+                        title: 'Coordonnées',
+                        children: [
+                          _DetailRow(icon: Icons.phone_android, label: 'Téléphone', value: client.phone ?? 'Non spécifié'),
+                          _DetailRow(icon: Icons.location_on_outlined, label: 'Adresse', value: client.address ?? 'Non spécifiée'),
+                          _DetailRow(icon: Icons.map_outlined, label: 'Ville', value: client.city ?? 'Non spécifiée'),
+                          _DetailRow(icon: Icons.email_outlined, label: 'Email', value: client.email ?? 'Non spécifié'),
+                        ],
+                      ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1),
+
+                      const SizedBox(height: 24),
+
+                      // AI Analysis Card
+                      _DetailSection(
+                        title: 'Analyse IA & Insights',
+                        isAccent: true,
+                        children: [
+                          const _AiInsight(
+                            text: 'Client récurrent avec une haute réactivité. Préfère les interventions le matin.',
+                            icon: Icons.auto_awesome,
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: const [
+                              _TechTag(label: 'VIP', color: AppColors.secondary),
+                              _TechTag(label: 'URGENT', color: AppColors.error),
+                              _TechTag(label: 'RÉSIDENTIEL', color: AppColors.primary),
+                            ],
+                          ),
+                        ],
+                      ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.1),
+
+                      const SizedBox(height: 24),
+
+                      // Bland AI Section
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: AppColors.textPrimary,
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(color: AppColors.primary.withOpacity(0.2), blurRadius: 30, offset: const Offset(0, 15)),
+                          ],
                         ),
-                        onPressed: () {
-                          // Simuler l'appel Bland AI
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Appel Bland AI simulé.')));
-                        },
-                        icon: const Icon(Icons.call),
-                        label: const Text('Lancer l\'appel IA', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                _VoiceRing(),
+                                SizedBox(width: 16),
+                                Text('Assistant Bland AI', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800)),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Lancer un appel de qualification intelligent pour ce client.',
+                              style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                            ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: AppColors.textPrimary,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Initialisation Bland AI...')));
+                                },
+                                child: const Text('Déclencher l\'appel vocal', style: TextStyle(fontWeight: FontWeight.w900)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ).animate(delay: 500.ms).fadeIn().scale(),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -151,28 +205,56 @@ class ClientDetailScreen extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _launchUrl(String urlString) async {
+    final url = Uri.parse(urlString);
+    if (await canLaunchUrl(url)) await launchUrl(url);
+  }
 }
 
-class _SectionCard extends StatelessWidget {
+class _CircularAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _CircularAction({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        IconButton.filledTonal(
+          onPressed: onTap,
+          icon: Icon(icon, color: AppColors.primary),
+          padding: const EdgeInsets.all(16),
+          style: IconButton.styleFrom(backgroundColor: AppColors.primarySurface),
+        ),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+      ],
+    );
+  }
+}
+
+class _DetailSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
-
-  const _SectionCard({required this.title, required this.children});
+  final bool isAccent;
+  const _DetailSection({required this.title, required this.children, this.isAccent = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: isAccent ? AppColors.primary.withOpacity(0.2) : AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          const SizedBox(height: 20),
           ...children,
         ],
       ),
@@ -180,22 +262,26 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
+class _DetailRow extends StatelessWidget {
   final IconData icon;
-  final String text;
-
-  const _InfoRow({required this.icon, required this.text});
+  final String label;
+  final String value;
+  const _DetailRow({required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Icon(icon, size: 20, color: AppColors.textTertiary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(text, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary, fontWeight: FontWeight.w600)),
+              Text(value, style: const TextStyle(fontSize: 15, color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+            ],
           ),
         ],
       ),
@@ -203,25 +289,54 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _AiTag extends StatelessWidget {
+class _AiInsight extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  const _AiInsight({required this.text, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: AppColors.primary, size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(text, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w600, height: 1.5)),
+        ),
+      ],
+    );
+  }
+}
+
+class _TechTag extends StatelessWidget {
   final String label;
   final Color color;
-
-  const _AiTag(this.label, this.color);
+  const _TechTag({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        border: Border.all(color: color.withOpacity(0.3)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+      child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+    );
+  }
+}
+
+class _VoiceRing extends StatelessWidget {
+  const _VoiceRing();
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(width: 20, height: 20, decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle))
+            .animate(onPlay: (c) => c.repeat())
+            .scale(begin: const Offset(1, 1), end: const Offset(2.5, 2.5), duration: 2.s)
+            .fadeOut(),
+        const Icon(Icons.mic, color: Colors.white, size: 24),
+      ],
     );
   }
 }
