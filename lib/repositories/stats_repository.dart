@@ -19,7 +19,7 @@ class StatsRepository {
         .eq('business_id', businessId)
         .gte('triggered_at', since.toIso8601String());
 
-    final leads = leadsData as List<Map<String, dynamic>>;
+    final List<Map<String, dynamic>> leads = List<Map<String, dynamic>>.from(leadsData);
 
     // Aggregate
     final intercepted = leads

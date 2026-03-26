@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/client.dart';
 
-final _clientsProvider = FutureProvider<List<Client>>((ref) async {
+final _searchQueryProvider = StateProvider<String>((ref) => '');
+
+final _filteredClientsProvider = FutureProvider<List<Client>>((ref) async {
+  final query = ref.watch(_searchQueryProvider).toLowerCase();
   final data = await SupabaseConfig.client
       .from(kTableClients)
       .select()
       .eq('business_id', kDevBusinessId)
       .order('name');
-  return (data as List).map((e) => Client.fromJson(e)).toList();
+  
+  final clients = (data as List).map((e) => Client.fromJson(e)).toList();
+  
+  if (query.isEmpty) return clients;
+  return clients.where((c) => 
+    c.name.toLowerCase().contains(query) || 
+    (c.phone?.contains(query) ?? false) ||
+    (c.city?.toLowerCase().contains(query) ?? false)
+  ).toList();
 });
 
 class ClientsScreen extends ConsumerWidget {
@@ -20,7 +32,7 @@ class ClientsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final clientsAsync = ref.watch(_clientsProvider);
+    final clientsAsync = ref.watch(_filteredClientsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -29,14 +41,37 @@ class ClientsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
               child: Text('Clients',
                   style: Theme.of(context).textTheme.headlineLarge),
             ),
+            
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: TextField(
+                  onChanged: (v) => ref.read(_searchQueryProvider.notifier).state = v,
+                  decoration: const InputDecoration(
+                    hintText: 'Rechercher un client...',
+                    prefixIcon: Icon(Icons.search, color: AppColors.textTertiary),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+
             Expanded(
               child: clientsAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(child: Text('Erreur: $e')),
                 data: (clients) {
                   if (clients.isEmpty) {
@@ -47,19 +82,17 @@ class ClientsScreen extends ConsumerWidget {
                           Icon(Icons.people_outline,
                               size: 48, color: AppColors.textTertiary),
                           SizedBox(height: 12),
-                          Text('Aucun client enregistré',
+                          Text('Aucun client trouvé',
                               style:
                                   TextStyle(color: AppColors.textSecondary)),
                         ],
                       ),
                     );
                   }
-                  return ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     itemCount: clients.length,
-                    separatorBuilder: (_, __) =>
-                        const Divider(height: 1, color: AppColors.borderLight),
-                    itemBuilder: (ctx, i) => _ClientTile(client: clients[i]),
+                    itemBuilder: (ctx, i) => _ClientCard(client: clients[i]),
                   );
                 },
               ),
@@ -67,44 +100,159 @@ class ClientsScreen extends ConsumerWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.person_add_alt_1, color: Colors.white),
+      ),
     );
   }
 }
 
-class _ClientTile extends StatelessWidget {
+class _ClientCard extends StatelessWidget {
   final Client client;
-  const _ClientTile({required this.client});
+  const _ClientCard({required this.client});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 8),
-      leading: CircleAvatar(
-        backgroundColor: AppColors.primarySurface,
-        child: Text(
-          client.name.isNotEmpty ? client.name[0].toUpperCase() : '?',
-          style: const TextStyle(
-              color: AppColors.primary, fontWeight: FontWeight.w700),
-        ),
-      ),
-      title: Text(client.name,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (client.phone != null)
-            Text(client.phone!,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary)),
-          if (client.city != null)
-            Text(client.city!,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textTertiary)),
+    final initials = client.name.isNotEmpty ? client.name[0].toUpperCase() : '?';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textTertiary),
-      onTap: () => context.push('/clients/${client.id}'),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.push('/clients/${client.id}'),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppColors.primarySurface,
+                      child: Text(
+                        initials,
+                        style: const TextStyle(
+                            color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(client.name,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          const SizedBox(height: 4),
+                          if (client.city != null)
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textTertiary),
+                                const SizedBox(width: 4),
+                                Text(client.city!,
+                                    style: const TextStyle(
+                                        fontSize: 12, color: AppColors.textTertiary)),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                    // AI Status Tag
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('AI Gagné', style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1, color: AppColors.borderLight),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        _QuickActionButton(
+                          icon: Icons.phone_outlined,
+                          label: 'Appeler',
+                          onTap: () async {
+                            if (client.phone != null) {
+                              final url = Uri.parse('tel:${client.phone}');
+                              if (await canLaunchUrl(url)) await launchUrl(url);
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        _QuickActionButton(
+                          icon: Icons.chat_bubble_outline,
+                          label: 'SMS',
+                          onTap: () async {
+                            if (client.phone != null) {
+                              final url = Uri.parse('sms:${client.phone}');
+                              if (await canLaunchUrl(url)) await launchUrl(url);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
+class _QuickActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickActionButton({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 14, color: AppColors.textPrimary),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
+    );
+  }
+}

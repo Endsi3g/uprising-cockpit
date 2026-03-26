@@ -51,15 +51,14 @@ class CockpitScreen extends ConsumerWidget {
       body: Stack(
         children: [
           // 1. Map Background (Top half placeholder representing Google Maps)
-          Positioned(
             top: 0,
             left: 0,
             right: 0,
             height: MediaQuery.of(context).size.height * 0.55,
             child: Image.network(
-              'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800&h=600',
+              'https://images.unsplash.com/photo-1569336415962-a4bd9f6dfc0f?auto=format&fit=crop&q=80&w=800&h=600', // Cleaner, lighter map
               fit: BoxFit.cover,
-              color: AppColors.background.withOpacity(0.5), 
+              color: AppColors.background.withOpacity(0.4), 
               colorBlendMode: BlendMode.lighten,
             ),
           ),
