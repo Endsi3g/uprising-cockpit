@@ -38,8 +38,7 @@ class LeadRepository {
         .from(kTableLeads)
         .select('*, clients(*)')
         .eq('business_id', businessId)
-        .gte('triggered_at', since.toIso8601String())
-        .order('triggered_at', ascending: false);
+        .gte('triggered_at', since.toIso8601String());
 
     if (statusFilter != null) {
       query = query.eq('status', statusFilter.name);
@@ -48,7 +47,7 @@ class LeadRepository {
       query = query.eq('source', sourceFilter.name);
     }
 
-    final data = await query;
+    final data = await query.order('triggered_at', ascending: false);
     return (data as List).map((e) => Lead.fromJson(e)).toList();
   }
 

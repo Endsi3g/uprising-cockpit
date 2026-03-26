@@ -11,11 +11,15 @@ import '../../features/clients/client_detail_screen.dart';
 import '../../features/ai_chat/ai_chat_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/invoices/invoices_screen.dart';
+import '../../features/shared/screens/error_404_screen.dart';
+import '../../features/shared/screens/under_maintenance_screen.dart';
+import '../../features/shared/screens/welcome_screen.dart';
 import 'shell_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
+    errorBuilder: (context, state) => const Error404Screen(),
     routes: [
       ShellRoute(
         builder: (context, state, child) => ShellScaffold(child: child),
@@ -51,6 +55,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/maintenance',
+        builder: (context, state) => const UnderMaintenanceScreen(),
       ),
       // Full-screen routes (outside shell)
       GoRoute(
