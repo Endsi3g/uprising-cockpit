@@ -36,8 +36,8 @@ class CalendarScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.headlineLarge),
             ),
 
-            // Week picker
-            _WeekPicker(
+            // Month picker
+            _MonthPicker(
               selectedDay: selectedDay,
               onDaySelected: (d) =>
                   ref.read(_selectedDayProvider.notifier).state = d,
@@ -116,74 +116,98 @@ class CalendarScreen extends ConsumerWidget {
       a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-class _WeekPicker extends StatelessWidget {
+class _MonthPicker extends StatelessWidget {
   final DateTime selectedDay;
   final ValueChanged<DateTime> onDaySelected;
 
-  const _WeekPicker(
-      {required this.selectedDay, required this.onDaySelected});
+  const _MonthPicker({required this.selectedDay, required this.onDaySelected});
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final startOfWeek =
-        now.subtract(Duration(days: now.weekday - 1));
-    final days =
-        List.generate(7, (i) => startOfWeek.add(Duration(days: i)));
+    // Top row for month navigation
+    final currentMonth = DateTime(selectedDay.year, selectedDay.month, 1);
+    final firstDayOfMonth = DateTime(selectedDay.year, selectedDay.month, 1);
+    final lastDayOfMonth = DateTime(selectedDay.year, selectedDay.month + 1, 0);
+    
+    final leadingDays = firstDayOfMonth.weekday - 1;
+    final totalDays = lastDayOfMonth.day;
+    
     const labels = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-    return SizedBox(
-      height: 72,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: 14, // 2 weeks
-        itemBuilder: (ctx, i) {
-          final d = startOfWeek.add(Duration(days: i - 7));
-          final selected = _isSameDay(d, selectedDay);
-          final isToday = _isSameDay(d, now);
-          return GestureDetector(
-            onTap: () => onDaySelected(d),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.only(right: 8),
-              width: 44,
-              decoration: BoxDecoration(
-                color: selected ? AppColors.primary : AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isToday && !selected
-                      ? AppColors.primary
-                      : Colors.transparent,
+    return Column(
+      children: [
+        // Month Header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: () => onDaySelected(DateTime(selectedDay.year, selectedDay.month - 1, 1)),
+              ),
+              Text('${months[currentMonth.month - 1]} ${currentMonth.year}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: () => onDaySelected(DateTime(selectedDay.year, selectedDay.month + 1, 1)),
+              ),
+            ],
+          ),
+        ),
+        // Weekday labels
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: labels.map((l) => SizedBox(
+              width: 30,
+              child: Text(l, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            )).toList(),
+          ),
+        ),
+        // Grid
+        GridView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: leadingDays + totalDays,
+          itemBuilder: (ctx, i) {
+            if (i < leadingDays) return const SizedBox.shrink();
+            
+            final day = i - leadingDays + 1;
+            final d = DateTime(selectedDay.year, selectedDay.month, day);
+            final selected = _isSameDay(d, selectedDay);
+            final isToday = _isSameDay(d, DateTime.now());
+            
+            return GestureDetector(
+              onTap: () => onDaySelected(d),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.primary : (isToday ? AppColors.surface : Colors.transparent),
+                  shape: BoxShape.circle,
+                  border: isToday && !selected ? Border.all(color: AppColors.primary) : null,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '$day',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: selected || isToday ? FontWeight.w700 : FontWeight.w500,
+                    color: selected ? Colors.white : AppColors.textPrimary,
+                  ),
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    labels[d.weekday - 1],
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: selected
-                          ? Colors.white70
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${d.day}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: selected ? Colors.white : AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -197,73 +221,76 @@ class _BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          // Time column
-          SizedBox(
-            width: 52,
-            child: Column(
-              children: [
-                Text(
-                  booking.formattedTime,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+    return GestureDetector(
+      onTap: () => context.push('/bookings/${booking.id}'),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            // Time column
+            SizedBox(
+              width: 52,
+              child: Column(
+                children: [
+                  Text(
+                    booking.formattedTime,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
                   ),
-                ),
-                Text(
-                  '${booking.durationMinutes}min',
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.textTertiary),
-                ),
-              ],
-            ),
-          ),
-          Container(
-              width: 1,
-              height: 48,
-              margin: const EdgeInsets.symmetric(horizontal: 12),
-              color: AppColors.border),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  booking.jobType ?? 'Intervention',
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-                if (booking.address != null)
-                  Text(booking.address!,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                if (booking.clientName != null)
-                  Text(booking.clientName!,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-          if (booking.estimatedValueCad != null)
-            Text(
-              booking.formattedValue,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.success,
-                fontSize: 14,
+                  Text(
+                    '${booking.durationMinutes}min',
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textTertiary),
+                  ),
+                ],
               ),
             ),
-        ],
+            Container(
+                width: 1,
+                height: 48,
+                margin: const EdgeInsets.symmetric(horizontal: 12),
+                color: AppColors.border),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    booking.jobType ?? 'Intervention',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  if (booking.address != null)
+                    Text(booking.address!,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  if (booking.clientName != null)
+                    Text(booking.clientName!,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+            if (booking.estimatedValueCad != null)
+              Text(
+                booking.formattedValue,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.success,
+                  fontSize: 14,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

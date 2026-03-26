@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants.dart';
 import '../../core/supabase/supabase_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -85,6 +87,11 @@ class JobsScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            // Map card
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: _MapRedirectCard(),
+            ),
             const SizedBox(height: 16),
 
             // List
@@ -158,6 +165,52 @@ class _FilterChip extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: selected ? Colors.white : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapRedirectCard extends StatelessWidget {
+  const _MapRedirectCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final url = Uri.parse('https://www.google.com/maps');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        }
+      },
+      child: Container(
+        height: 100,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+          image: const DecorationImage(
+            image: NetworkImage('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=600&h=200'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+          ),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.map_outlined, color: Colors.white, size: 28),
+              SizedBox(height: 8),
+              Text(
+                'Voir la carte des interventions',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            ],
           ),
         ),
       ),

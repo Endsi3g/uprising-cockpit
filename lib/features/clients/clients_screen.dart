@@ -108,25 +108,3 @@ class _ClientTile extends StatelessWidget {
   }
 }
 
-class ClientDetailScreen extends ConsumerWidget {
-  final String clientId;
-  const ClientDetailScreen({super.key, required this.clientId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final clientAsync = FutureProvider<Client?>((ref) async {
-      final data = await SupabaseConfig.client
-          .from(kTableClients)
-          .select()
-          .eq('id', clientId)
-          .maybeSingle();
-      if (data == null) return null;
-      return Client.fromJson(data);
-    });
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Fiche client')),
-      body: const Center(child: Text('Détails client à venir')),
-    );
-  }
-}

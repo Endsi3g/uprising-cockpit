@@ -14,6 +14,7 @@ import '../../features/invoices/invoices_screen.dart';
 import '../../features/shared/screens/error_404_screen.dart';
 import '../../features/shared/screens/under_maintenance_screen.dart';
 import '../../features/shared/screens/welcome_screen.dart';
+import '../../features/calendar/booking_detail_screen.dart';
 import 'shell_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -76,6 +77,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             ClientDetailScreen(clientId: state.pathParameters['id']!),
       ),
       GoRoute(
+        path: '/bookings/:id',
+        builder: (context, state) =>
+            BookingDetailScreen(bookingId: state.pathParameters['id']!),
+      ),
+      GoRoute(
         path: '/ai',
         builder: (context, state) => const AiChatScreen(),
       ),
@@ -95,7 +101,9 @@ CustomTransitionPage _noTransitionPage(GoRouterState state, Widget child) {
   return CustomTransitionPage(
     key: state.pageKey,
     child: child,
-    transitionDuration: Duration.zero,
-    transitionsBuilder: (_, __, ___, c) => c,
+    transitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
   );
 }

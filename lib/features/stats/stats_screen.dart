@@ -59,6 +59,10 @@ class StatsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
+                        // Dynamic Actionable Insights
+                        _DynamicInsights(stats: stats),
+                        const SizedBox(height: 24),
+
                         // KPI tiles row
                         Row(
                           children: [
@@ -199,7 +203,77 @@ class _ChartCard extends StatelessWidget {
         children: [
           Text(title, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 16),
-          SizedBox(height: 160, child: child),
+          AspectRatio(aspectRatio: 1.5, child: child),
+        ],
+      ),
+    );
+  }
+}
+
+class _DynamicInsights extends StatelessWidget {
+  final PeriodStats stats;
+  const _DynamicInsights({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    String insight;
+    Color color;
+    IconData icon;
+
+    if (stats.conversionRate >= 70) {
+      insight = 'Excellent travail ! Votre taux de conversion est de ${stats.conversionRate.toStringAsFixed(0)}%, ce qui est au-dessus de la moyenne régionale.';
+      color = AppColors.success;
+      icon = Icons.emoji_events_outlined;
+    } else if (stats.conversionRate >= 40) {
+      insight = 'Vous avez intercepté ${stats.totalLeadsIntercepted} urgences. Essayez de rappeler plus vite pour améliorer votre conversion de ${stats.conversionRate.toStringAsFixed(0)}%.';
+      color = AppColors.warning;
+      icon = Icons.bolt_outlined;
+    } else if (stats.totalLeadsIntercepted == 0) {
+      insight = 'Aucune urgence interceptée pour cette période. L\'IA est active et surveille le marché.';
+      color = AppColors.textSecondary;
+      icon = Icons.hourglass_empty;
+    } else {
+      insight = 'Attention, ${stats.totalLeadsLost} appels perdus. Assurez-vous d\'activer le transfert d\'appel immédiat.';
+      color = AppColors.danger;
+      icon = Icons.warning_amber_outlined;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Insights de l\'IA',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  insight,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: color.withOpacity(0.9),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

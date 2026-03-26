@@ -41,6 +41,15 @@ class BookingRepository {
     return (data as List).map((e) => Booking.fromJson(e)).toList();
   }
 
+  Future<Booking> fetchById(String id) async {
+    final data = await _client
+        .from(kTableBookings)
+        .select()
+        .eq('id', id)
+        .single();
+    return Booking.fromJson(data);
+  }
+
   Future<void> updateStatus(String id, BookingStatus status) async {
     await _client
         .from(kTableBookings)
