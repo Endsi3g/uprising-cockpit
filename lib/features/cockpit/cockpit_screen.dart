@@ -37,12 +37,17 @@ class CockpitScreen extends ConsumerWidget {
 
     ref.listen(_statsProvider(period), (prev, next) {
       next.whenData((s) async {
-        await HomeWidget.saveWidgetData<String>(
-            'savings', '\$${s.totalSavedCad.toStringAsFixed(0)}');
-        await HomeWidget.updateWidget(
-          name: 'HomeWidgetProvider',
-          iOSName: 'UprisingCockpitWidget',
-        );
+        // Only run HomeWidget sync on supported platforms (iOS/Android)
+        try {
+          await HomeWidget.saveWidgetData<String>(
+              'savings', '\$${s.totalSavedCad.toStringAsFixed(0)}');
+          await HomeWidget.updateWidget(
+            name: 'HomeWidgetProvider',
+            iOSName: 'UprisingCockpitWidget',
+          );
+        } catch (e) {
+          debugPrint('HomeWidget error: $e');
+        }
       });
     });
 

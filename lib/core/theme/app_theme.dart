@@ -12,6 +12,7 @@ class AppColors {
   
   static const background = Color(0xFFF9FAFB); // Very Light Gray
   static const surface = Colors.white;
+  static const surfaceElevated = Color(0xFFF3F4F6); // Same as borderLight
   static const border = Color(0xFFE5E7EB);
   static const borderLight = Color(0xFFF3F4F6);
   
@@ -20,8 +21,21 @@ class AppColors {
   static const textTertiary = Color(0xFF94A3B8);
   
   static const success = Color(0xFF10B981);
+  static const successSurface = Color(0xFFF0FDF4);
   static const error = Color(0xFFEF4444);
+  static const danger = error;
+  static const dangerSurface = Color(0xFFFEF2F2);
   static const warning = Color(0xFFF59E0B);
+  static const warningSurface = Color(0xFFFFFBEB);
+  
+  static const badgeNew = Color(0xFF3B82F6);
+  static const badgeNewSurface = Color(0xFFEFF6FF);
+  static const badgeBooked = Color(0xFF8B5CF6);
+  static const badgeBookedSurface = Color(0xFFF5F3FF);
+  static const badgeLost = Color(0xFF94A3B8);
+  static const badgeLostSurface = Color(0xFFF8FAFC);
+  static const badgeCompleted = Color(0xFF10B981);
+  static const badgeCompletedSurface = Color(0xFFECFDF5);
   
   static const glassBorder = Color(0x33FFFFFF);
   static const glassBackground = Color(0x1AFFFFFF);
