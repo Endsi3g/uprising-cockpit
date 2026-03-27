@@ -26,7 +26,7 @@ Ce document détaille les améliorations futures et les tâches de maintenance s
 - [ ] **Migration Clean Architecture** : Séparer davantage les couches de présentation et de repository pour les tests unitaires.
 
 ### 2. Design System
-- [ ] **Dark Mode Premium** : Concevoir une version "Obsidian" du thème pour le mode sombre.
+
 - [ ] **Micro-Interactions Lottie** : Ajouter des animations Lottie pour les états de succès (Invoices payées, Booking validé).
 
 ## 📦 Maintenance
