@@ -75,7 +75,7 @@ class ClientsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-            ).animate(delay: 200.ms).fadeIn(),
+            ).animate(delay: 200.milliseconds).fadeIn(),
             
             const SizedBox(height: 16),
 
@@ -88,7 +88,7 @@ class ClientsScreen extends ConsumerWidget {
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     itemCount: clients.length,
-                    itemBuilder: (ctx, i) => _ClientCard(client: clients[i]).animate(delay: (300 + i * 50).ms).fadeIn().slideY(begin: 0.1),
+                    itemBuilder: (ctx, i) => _ClientCard(client: clients[i]).animate(delay: (300 + i * 50).milliseconds).fadeIn().slideY(begin: 0.1),
                   );
                 },
               ),
@@ -101,7 +101,7 @@ class ClientsScreen extends ConsumerWidget {
         backgroundColor: AppColors.textPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: const Icon(Icons.person_add_alt_1, color: Colors.white),
-      ).animate(delay: 600.ms).scale(curve: Curves.elasticOut),
+      ).animate(delay: 600.milliseconds).scale(curve: Curves.elasticOut),
     );
   }
 
@@ -261,6 +261,6 @@ class _AiInterventionBadge extends StatelessWidget {
         ],
       ),
     ).animate(onPlay: (c) => c.repeat(reverse: true))
-     .shimmer(duration: 2.s, color: Colors.white);
+     .shimmer(duration: 2.seconds, color: Colors.white);
   }
 }

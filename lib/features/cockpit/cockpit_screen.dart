@@ -128,7 +128,7 @@ class CockpitScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0, curve: Curves.easeOutCubic),
+                ).animate().fadeIn(duration: 600.milliseconds).slideY(begin: -0.2, end: 0, curve: Curves.easeOutCubic),
             ),
           ),
 
@@ -186,7 +186,7 @@ class CockpitScreen extends ConsumerWidget {
                         ),
                         _SecondaryPill(label: 'Tout voir', onTap: () => context.push('/jobs')),
                       ],
-                    ).animate(delay: 200.ms).fadeIn().slideX(begin: -0.1),
+                    ).animate(delay: 200.milliseconds).fadeIn().slideX(begin: -0.1),
 
                     const SizedBox(height: 24),
 
@@ -199,7 +199,7 @@ class CockpitScreen extends ConsumerWidget {
                           return ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: leads.length,
-                            itemBuilder: (ctx, i) => _BentoVisitCard(lead: leads[i]).animate(delay: (300 + i * 100).ms).fadeIn().scale(begin: const Offset(0.9, 0.9)),
+                            itemBuilder: (ctx, i) => _BentoVisitCard(lead: leads[i]).animate(delay: (300 + i * 100).milliseconds).fadeIn().scale(begin: const Offset(0.9, 0.9)),
                           );
                         },
                         loading: () => const Center(child: CircularProgressIndicator()),
@@ -211,11 +211,11 @@ class CockpitScreen extends ConsumerWidget {
 
                     // Performance Insights (AI)
                     Text('Performances', style: Theme.of(context).textTheme.titleLarge)
-                        .animate(delay: 500.ms).fadeIn(),
+                        .animate(delay: 500.milliseconds).fadeIn(),
                     const SizedBox(height: 16),
                     
                     statsAsync.when(
-                      data: (s) => _PremiumStatsCard(stats: s).animate(delay: 600.ms).fadeIn().slideY(begin: 0.1),
+                      data: (s) => _PremiumStatsCard(stats: s).animate(delay: 600.milliseconds).fadeIn().slideY(begin: 0.1),
                       loading: () => const SizedBox.shrink(),
                       error: (_, __) => const SizedBox.shrink(),
                     ),
@@ -237,7 +237,7 @@ class CockpitScreen extends ConsumerWidget {
               elevation: 8,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               child: const Icon(Icons.add, color: Colors.white, size: 36),
-            ).animate(delay: 800.ms).scale(curve: Curves.elasticOut),
+            ).animate(delay: 800.milliseconds).scale(curve: Curves.elasticOut),
           ),
         ],
       ),
@@ -271,7 +271,7 @@ class _AnimatedMarker extends StatelessWidget {
             color: AppColors.primary.withOpacity(0.3),
             shape: BoxShape.circle,
           ),
-        ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(1, 1), end: const Offset(3, 3), duration: 2.s).fadeOut(),
+        ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(1, 1), end: const Offset(3, 3), duration: 2.seconds).fadeOut(),
         const Icon(Icons.location_on, color: AppColors.primary, size: 40),
       ],
     );
@@ -285,7 +285,7 @@ class _PulseDot extends StatelessWidget {
     return Container(
       width: 8, height: 8,
       decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle),
-    ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.3, 1.3), duration: 1.s, curve: Curves.easeInOut);
+    ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.3, 1.3), duration: 1.seconds, curve: Curves.easeInOut);
   }
 }
 
@@ -310,7 +310,7 @@ class _HeaderIconButton extends StatelessWidget {
         child: Icon(icon, color: isAccent ? AppColors.primary : AppColors.textPrimary, size: 24),
       ),
     ).animate(onPlay: (c) => c.repeat(reverse: true))
-     .shimmer(delay: 5.s, duration: 2.s, color: Colors.white24);
+     .shimmer(delay: 5.seconds, duration: 2.seconds, color: Colors.white24);
   }
 }
 

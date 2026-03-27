@@ -36,7 +36,7 @@ class UprisingCockpitApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Uprising Cockpit',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.light,
       themeMode: ThemeMode.light,
       routerConfig: router,
     );

@@ -52,7 +52,7 @@ class StatsScreen extends ConsumerWidget {
                     selected: period,
                     onChanged: (p) => ref.read(_statsPeriodProvider.notifier).state = p,
                   ),
-                ).animate(delay: 200.ms).fadeIn(),
+                ).animate(delay: 200.milliseconds).fadeIn(),
               ),
               statsAsync.when(
                 loading: () => const SliverFillRemaining(
@@ -65,7 +65,7 @@ class StatsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        _DynamicInsights(stats: stats).animate(delay: 300.ms).fadeIn().slideY(begin: 0.2),
+                        _DynamicInsights(stats: stats).animate(delay: 300.milliseconds).fadeIn().slideY(begin: 0.2),
                         const SizedBox(height: 24),
 
                         Row(
@@ -75,14 +75,14 @@ class StatsScreen extends ConsumerWidget {
                               value: stats.formattedSavedFull,
                               icon: Icons.savings_outlined,
                               color: AppColors.success,
-                            ).animate(delay: 400.ms).fadeIn().scale(),
+                            ).animate(delay: 400.milliseconds).fadeIn().scale(),
                             const SizedBox(width: 12),
                             _KpiTile(
                               label: 'Interceptés',
                               value: '${stats.totalLeadsIntercepted}',
                               icon: Icons.phone_in_talk_outlined,
                               color: AppColors.primary,
-                            ).animate(delay: 500.ms).fadeIn().scale(),
+                            ).animate(delay: 500.milliseconds).fadeIn().scale(),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -93,27 +93,27 @@ class StatsScreen extends ConsumerWidget {
                               value: '${stats.totalLeadsLost}',
                               icon: Icons.call_missed_outlined,
                               color: AppColors.error,
-                            ).animate(delay: 600.ms).fadeIn().scale(),
+                            ).animate(delay: 600.milliseconds).fadeIn().scale(),
                             const SizedBox(width: 12),
                             _KpiTile(
                               label: 'Conversion',
                               value: '${stats.conversionRate.toStringAsFixed(0)}%',
                               icon: Icons.trending_up,
                               color: AppColors.warning,
-                            ).animate(delay: 700.ms).fadeIn().scale(),
+                            ).animate(delay: 700.milliseconds).fadeIn().scale(),
                           ],
                         ),
                         const SizedBox(height: 32),
 
                         _ChartCard(
                           title: 'Urgences captées vs perdues',
-                          child: _UrgencesBarChart(daily: stats.daily).animate(delay: 800.ms).fadeIn(),
+                          child: _UrgencesBarChart(daily: stats.daily).animate(delay: 800.milliseconds).fadeIn(),
                         ),
                         const SizedBox(height: 16),
 
                         _ChartCard(
                           title: 'Revenus sauvés (\$ CAD)',
-                          child: _SavingsLineChart(daily: stats.daily).animate(delay: 900.ms).fadeIn(),
+                          child: _SavingsLineChart(daily: stats.daily).animate(delay: 900.milliseconds).fadeIn(),
                         ),
                         const SizedBox(height: 40),
                       ],

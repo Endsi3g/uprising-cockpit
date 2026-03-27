@@ -71,18 +71,18 @@ class ClientDetailScreen extends ConsumerWidget {
                                 backgroundColor: AppColors.primarySurface,
                                 child: Text(initials, style: const TextStyle(fontSize: 36, color: AppColors.primary, fontWeight: FontWeight.w900)),
                               ),
-                            ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+                            ).animate().scale(curve: Curves.elasticOut, duration: 800.milliseconds),
                             const SizedBox(height: 16),
                             Text(
                               client.name,
                               style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
-                            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
+                            ).animate().fadeIn(delay: 200.milliseconds).slideY(begin: 0.2),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
                               child: const Text('CLIENT VIP', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                            ).animate().fadeIn(delay: 400.ms),
+                            ).animate().fadeIn(delay: 400.milliseconds),
                           ],
                         ),
                       ),
@@ -123,7 +123,7 @@ class ClientDetailScreen extends ConsumerWidget {
                           _DetailRow(icon: Icons.map_outlined, label: 'Ville', value: client.city ?? 'Non spécifiée'),
                           _DetailRow(icon: Icons.email_outlined, label: 'Email', value: client.email ?? 'Non spécifié'),
                         ],
-                      ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1),
+                      ).animate(delay: 100.milliseconds).fadeIn().slideY(begin: 0.1),
 
                       const SizedBox(height: 24),
 
@@ -147,7 +147,7 @@ class ClientDetailScreen extends ConsumerWidget {
                             ],
                           ),
                         ],
-                      ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.1),
+                      ).animate(delay: 300.milliseconds).fadeIn().slideY(begin: 0.1),
 
                       const SizedBox(height: 24),
 
@@ -194,7 +194,7 @@ class ClientDetailScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                      ).animate(delay: 500.ms).fadeIn().scale(),
+                      ).animate(delay: 500.milliseconds).fadeIn().scale(),
                     ],
                   ),
                 ),
@@ -333,7 +333,7 @@ class _VoiceRing extends StatelessWidget {
       children: [
         Container(width: 20, height: 20, decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle))
             .animate(onPlay: (c) => c.repeat())
-            .scale(begin: const Offset(1, 1), end: const Offset(2.5, 2.5), duration: 2.s)
+            .scale(begin: const Offset(1, 1), end: const Offset(2.5, 2.5), duration: 2.seconds)
             .fadeOut(),
         const Icon(Icons.mic, color: Colors.white, size: 24),
       ],
